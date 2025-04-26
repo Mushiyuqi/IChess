@@ -1,11 +1,13 @@
 #include "ChessManager.h"
-
 #include <iostream>
-
 #include "ChessBoard.h"
 
 ChessManager::~ChessManager() {
     std::cerr << "ChessManager::~ChessManager destructed" << std::endl;
+}
+
+ChessManager::ChessManager() {
+    std::cout << "ChessManager::ChessManager constructed" << std::endl;
 }
 
 void ChessManager::JoinRoom(const int roomID, std::shared_ptr<CSession> session, const int color) {
@@ -18,12 +20,7 @@ void ChessManager::JoinRoom(const int roomID, std::shared_ptr<CSession> session,
         m_rooms[roomID]->_player_white = session;
 }
 
-ChessManager::ChessManager() {
-    std::cerr << "ChessManager::ChessManager constructed" << std::endl;
-}
-
 ChessManager& ChessManager::GetInstance() {
-
     static ChessManager instance;
     return instance;
 }

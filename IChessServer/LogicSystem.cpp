@@ -141,11 +141,14 @@ void LogicSystem::RegisterCallBacks() {
             if (roomID != ROOM_ID::NONE) {
                 // 加入房间
                 ChessManager::GetInstance().JoinRoom(roomID, conn, color);
-                // 将Json数据转换为字符串
                 value["roomID"] = roomID;
-                const std::string json_str = value.toStyledString();
-                // 给双方发送房间号
+                // 将数据发送给白色玩家
+                value["color"] = CHESS_COLOR::CHESS_COLOR_BLACK;
+                std::string json_str = value.toStyledString();
                 ChessManager::GetInstance().m_rooms[roomID]->_player_white->Send(json_str, static_cast<short>(value["id"].asInt()));
+                // 将数据发送给黑色玩家
+                value["color"] = CHESS_COLOR::CHESS_COLOR_WHITE;
+                json_str = value.toStyledString();
                 ChessManager::GetInstance().m_rooms[roomID]->_player_black->Send(json_str, static_cast<short>(value["id"].asInt()));
                 return;
             }
