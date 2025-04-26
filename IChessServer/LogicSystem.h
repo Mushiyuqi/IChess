@@ -20,7 +20,6 @@ private:
     LogicSystem();
     void DealMsg();
     void RegisterCallBacks();
-    void HelloWordCallBack(std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data);
     std::thread m_worker_thread;
     std::queue<std::shared_ptr<LogicNode>> m_msg_que;
     std::mutex m_mutex;

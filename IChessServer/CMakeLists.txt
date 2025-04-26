@@ -15,6 +15,10 @@ add_executable(IChessServer main.cpp
         CSession.cpp
         LogicSystem.h
         LogicSystem.cpp
+        ChessBoard.h
+        ChessBoard.cpp
+        ChessManager.h
+        ChessManager.cpp
 )
 
 # 设置find package策略
