@@ -22,6 +22,7 @@ Item {
         property int toX: -1
         property int toY: -1
         property int oppositeColor: 0
+
         Ipv4{
             id:ip
             send: _inToSend.text
@@ -500,9 +501,9 @@ Item {
                             id:back
                             text: qsTr("退出")
                             onClicked: {
-                                _inToSend.num5=1005
+                                _inToSend.num5=1006
                                 ip.sendMessage()
-                                 manage.goBack()
+                                manage.goBack()
                                 //netChessBoard.reset()
                             }
                         }
