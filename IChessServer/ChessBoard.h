@@ -17,12 +17,18 @@ class CSession;
 class ChessBoard {
 public:
     explicit ChessBoard(int id);
+    ~ChessBoard();
+
+    // 查询
     int GetID();
+    // 设置
     bool MoveChequers(int x_from, int y_from, int x_to, int y_to);
+    void ResetChessBoard();
 
     // 玩家
     std::shared_ptr<CSession> _player_white;
     std::shared_ptr<CSession> _player_black;
+
 private:
     void InitChequer();
 

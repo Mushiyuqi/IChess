@@ -92,10 +92,8 @@ void LogicSystem::RegisterCallBacks() {
             Json::Value value;
             reader.parse(msg_data, value);
             std::cout << "LogicSystem::RegisterCallBacks recv msg id is : " << value["id"].asInt() << std::endl;
-            std::cout << "LogicSystem::RegisterCallBacks recv msg is    : " << value["data"].asString() << std::endl;
 
             // 发回消息
-            value["data"] = "msg has been dealed ( " + value["data"].asString() + " )";
             std::string json_str = value.toStyledString();
             conn->Send(json_str, static_cast<short>(value["id"].asInt()));
         };
@@ -115,7 +113,7 @@ void LogicSystem::RegisterCallBacks() {
             const int yTo = value["yTo"].asInt();
             const int color = value["color"].asInt();
             // 获取房间
-            const auto room = ChessManager::GetInstance().m_rooms[roomID];
+            const auto room = ChessManager::GetInstance()[roomID];
             // 记录操作
             room->MoveChequers(xFrom, yFrom, xTo, yTo);
             // 将Json数据转换为字符串
@@ -145,16 +143,89 @@ void LogicSystem::RegisterCallBacks() {
                 // 将数据发送给白色玩家
                 value["color"] = CHESS_COLOR::CHESS_COLOR_BLACK;
                 std::string json_str = value.toStyledString();
-                ChessManager::GetInstance().m_rooms[roomID]->_player_white->Send(json_str, static_cast<short>(value["id"].asInt()));
+                ChessManager::GetInstance()[roomID]->_player_white->Send(json_str, static_cast<short>(value["id"].asInt()));
                 // 将数据发送给黑色玩家
                 value["color"] = CHESS_COLOR::CHESS_COLOR_WHITE;
                 json_str = value.toStyledString();
-                ChessManager::GetInstance().m_rooms[roomID]->_player_black->Send(json_str, static_cast<short>(value["id"].asInt()));
+                ChessManager::GetInstance()[roomID]->_player_black->Send(json_str, static_cast<short>(value["id"].asInt()));
                 return;
             }
             // 创建房间
             ChessManager::GetInstance().CreateRoom(conn, color);
         };
+    // 处理悔棋
+    m_fun_callbacks[MSG_IDS::MSG_REAGAIN] =
+        [this](std::shared_ptr<CSession> conn, const short& msg_id, const std::string& msg_data) {
+            // 处理Json数据
+            Json::Reader reader;
+            Json::Value value;
+            reader.parse(msg_data, value);
+            std::cout << "LS::RCB MSG_REAGAIN recv msg id is : " << value["id"].asInt() << std::endl;
+
+            const int roomID = value["roomID"].asInt();
+            const int xFrom = value["xFrom"].asInt();
+            const int yFrom = value["yFrom"].asInt();
+            const int xTo = value["xTo"].asInt();
+            const int yTo = value["yTo"].asInt();
+            const int color = value["color"].asInt();
+            // 获取房间
+            const auto room = ChessManager::GetInstance()[roomID];
+            // 记录操作
+            room->MoveChequers(xFrom, yFrom, xTo, yTo);
+            // 将Json数据转换为字符串
+            const std::string json_str = value.toStyledString();
+            // 向对方发送消息
+            if (color == CHESS_COLOR::CHESS_COLOR_BLACK)
+                room->_player_white->Send(json_str, static_cast<short>(value["id"].asInt()));
+            if (color == CHESS_COLOR::CHESS_COLOR_WHITE)
+                room->_player_black->Send(json_str, static_cast<short>(value["id"].asInt()));
+    };
+    // 处理重开
+    m_fun_callbacks[MSG_IDS::MSG_RESTART] =
+        [this](std::shared_ptr<CSession> conn, const short& msg_id, const std::string& msg_data) {
+            // 处理Json数据
+            Json::Reader reader;
+            Json::Value value;
+            reader.parse(msg_data, value);
+            std::cout << "LS::RCB MSG_RESTART recv msg id is : " << value["id"].asInt() << std::endl;
+
+            const int roomID = value["roomID"].asInt();
+            const int color = value["color"].asInt();
+            // 获取房间
+            const auto room = ChessManager::GetInstance()[roomID];
+            // 记录操作
+            room->ResetChessBoard();
+            // 将Json数据转换为字符串
+            const std::string json_str = value.toStyledString();
+            // 向对方发送消息
+            if (color == CHESS_COLOR::CHESS_COLOR_BLACK)
+                room->_player_white->Send(json_str, static_cast<short>(value["id"].asInt()));
+            if (color == CHESS_COLOR::CHESS_COLOR_WHITE)
+                room->_player_black->Send(json_str, static_cast<short>(value["id"].asInt()));
+    };
+    // 处理退出
+    m_fun_callbacks[MSG_IDS::MSG_QUIT] =
+        [this](std::shared_ptr<CSession> conn, const short& msg_id, const std::string& msg_data) {
+            // 处理Json数据
+            Json::Reader reader;
+            Json::Value value;
+            reader.parse(msg_data, value);
+            std::cout << "LS::RCB MSG_QUIT recv msg id is : " << value["id"].asInt() << std::endl;
+
+            const int roomID = value["roomID"].asInt();
+            const int color = value["color"].asInt();
+            // 获取房间
+            const auto room = ChessManager::GetInstance()[roomID];
+            // 将Json数据转换为字符串
+            const std::string json_str = value.toStyledString();
+            // 向对方发送消息
+            if (color == CHESS_COLOR::CHESS_COLOR_BLACK)
+                room->_player_white->Send(json_str, static_cast<short>(value["id"].asInt()));
+            if (color == CHESS_COLOR::CHESS_COLOR_WHITE)
+                room->_player_black->Send(json_str, static_cast<short>(value["id"].asInt()));
+            // 删除房间
+            ChessManager::GetInstance().RemoveRoom(roomID);
+    };
 }
 
 

@@ -12,7 +12,6 @@ ChessManager::ChessManager() {
 }
 
 int ChessManager::GenerateNumericId() {
-    std::lock_guard<std::mutex> lock(m_mutex);
     // 随机生成房间号
     static std::random_device rd;  // 真随机数设备
     static std::mt19937 gen(rd()); // Mersenne Twister引擎
@@ -27,19 +26,15 @@ int ChessManager::GenerateNumericId() {
     return roomID;
 }
 
-void ChessManager::JoinRoom(const int roomID, std::shared_ptr<CSession> session, const int color) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    // 添加黑色玩家
-    if (color == CHESS_COLOR_BLACK && m_rooms[roomID]->_player_black == nullptr)
-        m_rooms[roomID]->_player_black = session;
-    // 添加白色玩家
-    if (color == CHESS_COLOR_WHITE && m_rooms[roomID]->_player_white == nullptr)
-        m_rooms[roomID]->_player_white = session;
-}
-
 ChessManager& ChessManager::GetInstance() {
     static ChessManager instance;
     return instance;
+}
+
+std::shared_ptr<ChessBoard> ChessManager::operator[](const int roomID) {
+    // 获取房间
+    if (!m_rooms.contains(roomID)) return nullptr;
+    return m_rooms[roomID];
 }
 
 int ChessManager::GetRoom(const int color) {
@@ -67,11 +62,18 @@ int ChessManager::GetRoom(const int color) {
     return ROOM_ID::NONE;
 }
 
-void ChessManager::CreateRoom(std::shared_ptr<CSession> session, const int color) {
-    // 获取房间号(会自己加锁)
-    int roomID = GenerateNumericId();
-    // 创建房间
+void ChessManager::RemoveRoom(const int roomID) {
     std::lock_guard<std::mutex> lock(m_mutex);
+    if (m_rooms.contains(roomID)) {
+        // 删除房间
+        m_rooms.erase(roomID);
+    }
+}
+
+void ChessManager::CreateRoom(std::shared_ptr<CSession> session, const int color) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    // 获取房间号
+    int roomID = GenerateNumericId();
     // 创建棋盘
     auto chessboard = std::make_shared<ChessBoard>(roomID);
     if (color == CHESS_COLOR_BLACK) chessboard->_player_black = session;
@@ -81,6 +83,16 @@ void ChessManager::CreateRoom(std::shared_ptr<CSession> session, const int color
     // 将房间号添加到队列中
     if (color == CHESS_COLOR_BLACK) m_need_white_id_que.push(roomID);
     if (color == CHESS_COLOR_WHITE) m_need_black_id_que.push(roomID);
+}
+
+void ChessManager::JoinRoom(const int roomID, std::shared_ptr<CSession> session, const int color) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    // 添加黑色玩家
+    if (color == CHESS_COLOR_BLACK && m_rooms[roomID]->_player_black == nullptr)
+        m_rooms[roomID]->_player_black = session;
+    // 添加白色玩家
+    if (color == CHESS_COLOR_WHITE && m_rooms[roomID]->_player_white == nullptr)
+        m_rooms[roomID]->_player_white = session;
 }
 
 

@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<MyNetWork>("MyNetWork", 1, 0, "Ipv4");
 
     //创建音乐播放器并设置为QML上下文属性，没有使用QML是因为会闪退
-    MusicPlayer musicPlayer;
-    engine.rootContext()->setContextProperty("musicPlayer", &musicPlayer);
-    engine.load(url);
+    // MusicPlayer musicPlayer;
+    // engine.rootContext()->setContextProperty("musicPlayer", &musicPlayer);
 
+    engine.load(url);
     return app.exec();
 }

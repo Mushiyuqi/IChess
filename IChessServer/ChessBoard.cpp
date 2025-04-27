@@ -1,15 +1,22 @@
 #include "ChessBoard.h"
 
+#include <iostream>
+
 Chequer::Chequer(const int type, const int color, const int y, const int x)
     : m_type(type), m_chess_color(color), m_x(x), m_y(y) {
 }
 
-ChessBoard::ChessBoard(const int id):m_id(id) {
+ChessBoard::ChessBoard(const int id): m_id(id) {
     // 初始化玩家
     _player_white = nullptr;
     _player_black = nullptr;
     // 初始化棋子
     InitChequer();
+    std::cout << "ChessBoard::ChessBoard constructed id is " << m_id << std::endl;
+}
+
+ChessBoard::~ChessBoard() {
+    std::cerr << "ChessBoard::~ChessBoard destructed id is " << m_id << std::endl;
 }
 
 int ChessBoard::GetID() {
@@ -36,6 +43,14 @@ bool ChessBoard::MoveChequers(const int x_from, const int y_from, const int x_to
     // 移动或吃掉棋子失败
     if (!flag_from || !flag_to) return false;
     return true;
+}
+
+void ChessBoard::ResetChessBoard() {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    // 清空棋子
+    m_chequers.clear();
+    // 重新初始化棋子
+    InitChequer();
 }
 
 void ChessBoard::InitChequer() {

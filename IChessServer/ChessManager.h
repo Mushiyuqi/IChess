@@ -5,15 +5,17 @@ class ChessBoard;
 class LogicSystem;
 class CSession;
 class ChessManager {
-    friend LogicSystem;
 public:
     ~ChessManager();
     ChessManager(const ChessManager&) = delete;
     ChessManager& operator=(const ChessManager&) = delete;
-
     static ChessManager& GetInstance();
 
+    // 查询
+    std::shared_ptr<ChessBoard> operator[](int roomID);
+    // 修改
     int GetRoom(int color);
+    void RemoveRoom(int roomID);
     void CreateRoom(std::shared_ptr<CSession> session, int color);
     void JoinRoom(int roomID, std::shared_ptr<CSession> session, int color);
 private:
