@@ -26,12 +26,12 @@ cmake_policy(SET CMP0167 NEW)
 
 # 添加Boost库的依赖
 find_package(Boost REQUIRED COMPONENTS system filesystem thread)
-target_include_directories(IChessServer PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_directories(IChessServer PRIVATE
-        Boost::system
         Boost::filesystem
+        Boost::system
         Boost::thread
-        Boost::beast)
+        Boost::boost
+)
 
 # 添加Abseil库的依赖
 find_package(absl REQUIRED)

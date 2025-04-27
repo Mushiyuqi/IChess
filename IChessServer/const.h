@@ -43,8 +43,4 @@ enum MSG_IDS {
     MSG_REAGAIN = 1004,         // 悔棋
     MSG_RESTART = 1005,         // 重开
     MSG_QUIT = 1006,            // 退出
-    MSG_Pawn2QUEEN = 1007,      // 小兵晋升为queen
-    MSG_Pawn2ROOK = 1008,       // 小兵晋升为rook
-    MSG_Pawn2KNIGHT = 1009,     // 小兵晋升为knight
-    MSG_Pawn2BISHOP = 1010,     // 小兵晋升为bishop
 };

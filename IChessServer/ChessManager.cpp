@@ -1,6 +1,7 @@
 #include "ChessManager.h"
 #include <iostream>
 #include "ChessBoard.h"
+#include <random>
 
 ChessManager::~ChessManager() {
     std::cerr << "ChessManager::~ChessManager destructed" << std::endl;
@@ -8,6 +9,22 @@ ChessManager::~ChessManager() {
 
 ChessManager::ChessManager() {
     std::cout << "ChessManager::ChessManager constructed" << std::endl;
+}
+
+int ChessManager::GenerateNumericId() {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    // 随机生成房间号
+    static std::random_device rd;  // 真随机数设备
+    static std::mt19937 gen(rd()); // Mersenne Twister引擎
+    static std::uniform_int_distribution<> dist(100000, 999999); // 6位数字
+
+    // 判断房间号是否重复
+    int roomID = dist(gen);
+    while (m_rooms.contains(roomID)) {
+        roomID = dist(gen);
+    }
+
+    return roomID;
 }
 
 void ChessManager::JoinRoom(const int roomID, std::shared_ptr<CSession> session, const int color) {
@@ -51,9 +68,10 @@ int ChessManager::GetRoom(const int color) {
 }
 
 void ChessManager::CreateRoom(std::shared_ptr<CSession> session, const int color) {
+    // 获取房间号(会自己加锁)
+    int roomID = GenerateNumericId();
+    // 创建房间
     std::lock_guard<std::mutex> lock(m_mutex);
-    // 获取房间号
-    int roomID = m_rooms.size() + 1;
     // 创建棋盘
     auto chessboard = std::make_shared<ChessBoard>(roomID);
     if (color == CHESS_COLOR_BLACK) chessboard->_player_black = session;

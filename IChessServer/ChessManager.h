@@ -18,6 +18,7 @@ public:
     void JoinRoom(int roomID, std::shared_ptr<CSession> session, int color);
 private:
     ChessManager();
+    int GenerateNumericId();
 
     std::queue<int> m_need_black_id_que;
     std::queue<int> m_need_white_id_que;
